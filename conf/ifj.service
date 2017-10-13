@@ -1,0 +1,12 @@
+[Unit]
+Description=IFJ server gunicorn deamon.
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/home/ifj/ifj.cz/
+ExecStart=/home/ifj/ifj.cz/.venv/bin/gunicorn --workers 3 --bind unix:/home/ifj/ifj.cz/ifj.sock ifj.wsgi:application
+
+[Install]
+WantedBy=multi-user.target

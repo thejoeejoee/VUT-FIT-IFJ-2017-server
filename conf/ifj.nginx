@@ -1,0 +1,46 @@
+# Expires map
+map $sent_http_content_type $expires {
+    default                    off;
+    text/html                  epoch;
+    text/css                   max;
+    application/javascript     max;
+    ~image/                    max;
+}
+
+server {
+    # disable all unwanted subdomains
+    server_name _;
+    deny all;
+    return 444;
+}
+
+server {
+    listen 80;
+    listen [::]:80 ipv6only=on;
+
+    server_name 80.211.194.66 ifj.josefkolar.cz;
+    client_max_body_size 8M;
+    expires $expires;
+
+    location = /google63f834c06dd84f21.html {
+        alias /home/ifj/ifj.cz/static/google63f834c06dd84f21.html;
+    }
+
+    location = /favicon.ico {
+        alias /home/ifj/ifj.cz/static/img/favicon.ico;
+    }
+
+    location /media {
+        alias /home/ifj/ifj.cz/media;
+    }
+
+    location /static {
+        alias /home/ifj/ifj.cz/static;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/home/ifj/ifj.cz/ifj.sock;
+    }
+
+}
