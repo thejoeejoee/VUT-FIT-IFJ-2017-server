@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-files="content locale product ifj templates web manage.py requirements.txt conf";
+files="ifj web api benchmark manage.py requirements.txt conf";
 >&2 echo "Packing and transferring...";
 tar czf - ${files} | ssh josefkolar.cz "cd /home/ifj/ifj.cz/ && cat - > deploy.tar.gz";
 ssh josefkolar.cz << SSH
