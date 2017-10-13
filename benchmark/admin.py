@@ -2,7 +2,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from benchmark.models import ResultAuthor, Team, TestCase, Result
+from .models import ResultAuthor, Team, TestCase, Result
 
 
 @admin.register(ResultAuthor)

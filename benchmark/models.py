@@ -42,6 +42,7 @@ class TestCase(BaseModel):
 
     class Meta(object):
         unique_together = ('section', 'name'),
+        ordering = ('section', 'name',)
 
 
 class Result(BaseModel):

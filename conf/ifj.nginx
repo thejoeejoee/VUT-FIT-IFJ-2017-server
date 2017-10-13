@@ -43,4 +43,15 @@ server {
         proxy_pass http://unix:/home/ifj/ifj.cz/ifj.sock;
     }
 
+
+    listen 443 ssl; # managed by Certbot
+ssl_certificate /etc/letsencrypt/live/ifj.josefkolar.cz/fullchain.pem; # managed by Certbot
+ssl_certificate_key /etc/letsencrypt/live/ifj.josefkolar.cz/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+
+
+    if ($scheme != "https") {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
 }
