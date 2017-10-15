@@ -1,6 +1,7 @@
 # coding=utf-8
 from json import loads
 
+import re
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views import View
@@ -26,19 +27,21 @@ class BaseApiView(View):
 
 
 class GenerateAuthorTokenView(BaseApiView):
+    LOGIN_RE = re.compile(r'^x\w{5}\d{2}$')
+
     def post(self, *args, **kwargs):
         try:
-            data = loads(str(self.request.body, encoding='utf-8'))  # type: dict
+            data = loads(str(self.request.body, encoding='utf-8').lower())  # type: dict
         except ValueError as e:
             return self._invalid('Invalid JSON ({}).'.format(e))
 
-        leader = data.get('leader')
-        if not leader or len(leader) != 8:
-            self._invalid('Invalid team leader login.')
+        leader = data.get('leader') or ''
+        if not self.LOGIN_RE.match(leader):
+            return self._invalid('Invalid team leader login.')
 
-        login = data.get('login')
-        if not login or len(login) != 8:
-            self._invalid('Invalid login.')
+        login = data.get('login') or ''
+        if not self.LOGIN_RE.match(login):
+            return self._invalid('Invalid login.')
 
         team, _ = Team.objects.get_or_create(leader_login=leader)
         author = ResultAuthor.objects.create(
