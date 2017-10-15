@@ -9,7 +9,19 @@
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.5/popper.min.js"></script> -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
     <script src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-108072995-1"></script>
     <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+
+        gtag('config', 'UA-108072995-1');
+
         google.charts.load('current', {packages: ['corechart']});
         window.charts = {};
     </script>
