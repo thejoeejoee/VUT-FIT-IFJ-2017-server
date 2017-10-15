@@ -48,7 +48,7 @@ class GenerateAuthorTokenView(BaseApiView):
             team=team,
             ip=get_ip(self.request),
             login=login
-        )
+        ).first()
         if not author:
             author = ResultAuthor.objects.create(
                 team=team,
