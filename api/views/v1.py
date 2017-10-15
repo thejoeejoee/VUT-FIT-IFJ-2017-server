@@ -1,7 +1,7 @@
 # coding=utf-8
+import re
 from json import loads
 
-import re
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views import View
@@ -44,11 +44,17 @@ class GenerateAuthorTokenView(BaseApiView):
             return self._invalid('Invalid login.')
 
         team, _ = Team.objects.get_or_create(leader_login=leader)
-        author = ResultAuthor.objects.create(
+        author = ResultAuthor.objects.filter(
             team=team,
             ip=get_ip(self.request),
             login=login
         )
+        if not author:
+            author = ResultAuthor.objects.create(
+                team=team,
+                ip=get_ip(self.request),
+                login=login
+            )
         return self._valid(token=author.token)
 
 
