@@ -46,45 +46,49 @@
             Githubu</a>.
     </p>
 
-    <h3>Vývoj hlavních benchmarků</h3>
-    <div id="carousel-charts" class="carousel slide" data-ride="carousel">
-        <ol class="carousel-indicators">
-            {% for case in main_cases %}
-                <li data-target="#carousel-charts" data-slide-to="{{ forloop.counter0 }}"
-                        {% if forloop.first %} class="active"{% endif %}>
-                </li>
-            {% endfor %}
-        </ol>
-        <div class="carousel-inner" role="listbox">
-            {% for case in main_cases %}
-                <div class="carousel-item{% if forloop.first %} active{% endif %}">
-                    {% include "web/carousel-chart.html" with case=case %}
-                </div>
-            {% endfor %}
-        </div>
-        <a class="carousel-control carousel-control-prev" href="#carousel-charts" role="button" data-slide="prev">
-            <span class="display-4">◀</span>
-            <span class="sr-only">Předchozí</span>
-        </a>
-        <a class="carousel-control carousel-control-next" href="#carousel-charts" role="button" data-slide="next">
-            <span class="display-4">▶</span>
-            <span class="sr-only">Následující</span>
-        </a>
-    </div>
-
-    <h3>Jednotlivé soutěže</h3>
-    <div class="row justify-content-md-center">
-        <div class="col-6">
-            <ul class="list-group">
-                {% for case in cases %}
-                    <li class="list-group-item">
-                        {{ case }} <i class="small">({{ case.average_price|floatformat }})</i>
-                        <a href="{{ case.github_link }}" class="btn btn-default float-right">Github</a>
+    {% if not main_cases %}
+        <div class="alert alert-info">Zatím žádná evidovaná data.</div>
+    {% else %}
+        <h3>Vývoj hlavních benchmarků</h3>
+        <div id="carousel-charts" class="carousel slide" data-ride="carousel">
+            <ol class="carousel-indicators">
+                {% for case in main_cases %}
+                    <li data-target="#carousel-charts" data-slide-to="{{ forloop.counter0 }}"
+                            {% if forloop.first %} class="active"{% endif %}>
                     </li>
                 {% endfor %}
-            </ul>
+            </ol>
+            <div class="carousel-inner" role="listbox">
+                {% for case in main_cases %}
+                    <div class="carousel-item{% if forloop.first %} active{% endif %}">
+                    {% include "web/carousel-chart.html" with case=case %}
+                </div>
+                {% endfor %}
+            </div>
+            <a class="carousel-control carousel-control-prev" href="#carousel-charts" role="button" data-slide="prev">
+                <span class="display-4">◀</span>
+                <span class="sr-only">Předchozí</span>
+            </a>
+            <a class="carousel-control carousel-control-next" href="#carousel-charts" role="button" data-slide="next">
+                <span class="display-4">▶</span>
+                <span class="sr-only">Následující</span>
+            </a>
         </div>
-    </div>
+
+        <h3>Jednotlivé soutěže</h3>
+        <div class="row justify-content-md-center">
+            <div class="col-6">
+                <ul class="list-group">
+                    {% for case in cases %}
+                        <li class="list-group-item">
+                            {{ case }} <i class="small">({{ case.average_price|floatformat }})</i>
+                            <a href="{{ case.github_link }}" class="btn btn-default float-right">Github</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endif %}
 
     {% include "web/authors.html" %}
 </div>
