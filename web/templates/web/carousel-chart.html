@@ -1,0 +1,47 @@
+<div>
+    <script type="text/javascript">
+        jQuery(function ($) {
+            google.charts.setOnLoadCallback(function () {
+                var char_key = 'chart-{{ case.slug }}';
+                var chart = {
+                    'draw': null,
+                    'data': null,
+                    'chart': null
+                };
+                var linkify = function (name, info) {
+                    if (info) {
+                        return name + '(' + info + ')'
+                    }
+                    return name;
+                };
+                chart.draw = function drawChart() {
+                    var options = {
+                        height: 480,
+                        width: 1110,
+                        interpolateNulls: true,
+                        curveType: 'function',
+                        title: linkify('{{ case }}', '{{ case.info }}'),
+                        legend: {
+                            position: 'top',
+                            maxLines: 4
+                        }
+
+                    };
+
+                    chart.chart = new google.visualization.LineChart(document.getElementById(char_key));
+                    chart.chart.draw(chart.data, options);
+                };
+                jQuery.ajax({
+                    dataType: "json",
+                    url: '{% url 'api:chart_result_data' case.pk %}',
+                    success: function (data) {
+                        chart.data = google.visualization.arrayToDataTable(data.data, false);
+                        chart.draw();
+                    }
+                });
+                window.charts[char_key] = chart;
+            });
+        });
+    </script>
+    <div class="carousel-chart" data-chart="chart-{{ case.slug }}" id="chart-{{ case.slug }}"></div>
+</div>

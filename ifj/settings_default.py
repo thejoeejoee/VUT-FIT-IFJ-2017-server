@@ -91,6 +91,7 @@ INSTALLED_APPS = [
     'web',
     'benchmark',
     'api',
+    'django_extensions',
     # 'debug_toolbar',
 ]
 

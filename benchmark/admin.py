@@ -22,4 +22,6 @@ class TestCaseAdmin(admin.ModelAdmin):
 
 @admin.register(Result)
 class ResultAdmin(admin.ModelAdmin):
-    list_display = ['author', 'test_case', 'price']
+    list_display = ['author', 'test_case', 'price', 'x_created']
+    date_hierarchy = 'x_created'
+    list_filter = ['test_case', 'author']

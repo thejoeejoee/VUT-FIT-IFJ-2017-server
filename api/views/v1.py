@@ -2,6 +2,7 @@
 from json import loads
 
 from django.http.response import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.views import View
 from ipware.ip import get_ip
 
@@ -62,7 +63,8 @@ class BenchmarkResultView(BaseApiView):
         self._process_results(author, data.get('reports', ()))
         return self._valid()
 
-    def _process_results(self, author, reports):
+    @staticmethod
+    def _process_results(author, reports):
         for report in reports:
             case, _ = TestCase.objects.get_or_create(
                 name=report.get('name'),
@@ -74,3 +76,15 @@ class BenchmarkResultView(BaseApiView):
                 operand_price=report.get('operand_price'),
                 instruction_price=report.get('instruction_price'),
             )
+
+
+class ChartResultDataView(View):
+    test_case = None  # type: TestCase
+
+    def get(self, request, *args, **kwargs):
+        self.test_case = get_object_or_404(TestCase, pk=self.kwargs.get('pk'))
+
+        return JsonResponse(
+            Result.objects.test_case_results(self.test_case),
+            json_dumps_params=dict(indent=4)
+        )

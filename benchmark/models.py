@@ -2,7 +2,11 @@
 from uuid import uuid4
 
 from django.db import models
+from django.db.models import Avg, F
 from django.utils import timezone
+from django.utils.text import slugify
+
+from benchmark.managers import TestResultManager
 
 
 class BaseModel(models.Model):
@@ -40,12 +44,29 @@ class TestCase(BaseModel):
     def __str__(self):
         return '/'.join((self.section, self.name))
 
+    @property
+    def slug(self):
+        return slugify(str(self))
+
+    @property
+    def github_link(self):
+        return 'https://github.com/thejoeejoee/VUT-FIT-IFJ-2017-tests/blob/master/tests/{}/{}.code'.format(
+            self.section,
+            self.name
+        )
+
+    @property
+    def average_price(self):
+        return self.result_test_case.aggregate(avg=Avg(F('operand_price') + F('instruction_price'))).get('avg')
+
     class Meta(object):
         unique_together = ('section', 'name'),
         ordering = ('section', 'name',)
 
 
 class Result(BaseModel):
+    objects = TestResultManager()
+
     author = models.ForeignKey(ResultAuthor, related_name='result_author')
     test_case = models.ForeignKey(TestCase, related_name='result_test_case')
 
