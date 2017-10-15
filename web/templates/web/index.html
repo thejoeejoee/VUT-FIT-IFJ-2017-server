@@ -46,7 +46,7 @@
             Githubu</a>.
     </p>
 
-    <h3>Přehled hlavních benchmarků</h3>
+    <h3>Vývoj hlavních benchmarků</h3>
     <div id="carousel-charts" class="carousel slide" data-ride="carousel">
         <ol class="carousel-indicators">
             {% for case in main_cases %}
@@ -54,7 +54,6 @@
                         {% if forloop.first %} class="active"{% endif %}>
                 </li>
             {% endfor %}
-
         </ol>
         <div class="carousel-inner" role="listbox">
             {% for case in main_cases %}
@@ -64,11 +63,11 @@
             {% endfor %}
         </div>
         <a class="carousel-control carousel-control-prev" href="#carousel-charts" role="button" data-slide="prev">
-            <span class="display-3">◀</span>
+            <span class="display-4">◀</span>
             <span class="sr-only">Předchozí</span>
         </a>
         <a class="carousel-control carousel-control-next" href="#carousel-charts" role="button" data-slide="next">
-            <span class="display-3">▶</span>
+            <span class="display-4">▶</span>
             <span class="sr-only">Následující</span>
         </a>
     </div>
@@ -87,15 +86,7 @@
         </div>
     </div>
 
-    <h3>Autoři</h3>
-    <ul>
-        <li><a href="https://www.facebook.com/kolar.joe">Josef Kolář</a>, xkolar71,
-            <a href="https://github.com/thejoeejoee">@thejoeejoee</a> - webserver, hodnotící interpret, přenos dat
-        </li>
-        <li><a href="https://www.facebook.com/sony.nguyen.98">Son Hai Nguyen</a>, xnguye16,
-            <a href="https://github.com/SonyPony">@SonyPony</a> - testování, grafy, konzultace
-        </li>
-    </ul>
+    {% include "web/authors.html" %}
 </div>
 
 {% include "web/fork-on-github.html" %}
