@@ -24,6 +24,11 @@
                         legend: {
                             position: 'none',
                             maxLines: 4
+                        },
+                        focusTarget: 'category',
+                        vAxis: {
+                            format: {format: 'none'},
+                            direction: -1
                         }
                     };
                     chart.chart = new google.visualization.LineChart(document.getElementById(char_key));
