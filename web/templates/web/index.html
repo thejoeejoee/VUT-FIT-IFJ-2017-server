@@ -7,6 +7,7 @@
 
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.5/popper.min.js"></script> -->
+    <script src="https://unpkg.com/popper.js@1.12.5/dist/umd/popper.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
     <script src="https://www.gstatic.com/charts/loader.js"></script>
 
@@ -24,6 +25,19 @@
 
         google.charts.load('current', {packages: ['corechart']});
         window.charts = {};
+
+        var chartDetail = function (url) {
+            window.event.preventDefault();
+            jQuery.get({
+                url: url,
+                success: function (html) {
+                    var $modal = $('#chart-modal');
+                    $modal.find('.modal-body').html(html);
+                    $modal.modal('show');
+
+                }
+            })
+        };
     </script>
     <style>
         .carousel-chart {
@@ -45,6 +59,10 @@
 
         .carousel-indicators .active {
             background-color: #444;
+        }
+
+        .modal-chart {
+            max-width: 1140px;
         }
     </style>
 </head>
@@ -73,8 +91,8 @@
             <div class="carousel-inner" role="listbox">
                 {% for case in main_cases %}
                     <div class="carousel-item{% if forloop.first %} active{% endif %}">
-                    {% include "web/carousel-chart.html" with case=case %}
-                </div>
+                        {% include "web/chart-detail.html" with case=case %}
+                    </div>
                 {% endfor %}
             </div>
             <a class="carousel-control carousel-control-prev" href="#carousel-charts" role="button" data-slide="prev">
@@ -86,22 +104,33 @@
                 <span class="sr-only">Následující</span>
             </a>
         </div>
-
-        <h3>Jednotlivé soutěže <i class="small">(průměr výsledků)</i></h3>
-        <div class="row justify-content-md-center">
-            <div class="col-6">
+        <div class="row">
+            <div class="col">
+                <h4>Jednotlivé soutěže <i class="small">(průměr výsledků)</i></h4>
                 <ul class="list-group">
                     {% for case in cases %}
                         <li class="list-group-item">
                             {{ case }} <i class="small">({{ case.average_price|floatformat }})</i>
-                            <a href="{{ case.github_link }}" class="btn btn-default float-right">Github</a>
+                            <a onclick="chartDetail('{% url 'web:chart_detail' case.pk %}')" href="#" class="badge badge-success">detail</a>
+                            <a href="{{ case.github_link }}" class="badge badge-primary">Github</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col">
+                <h4>Evidované týmy</h4>
+                <ul class="list-group">
+                    {% for team in teams %}
+                        <li class="list-group-item">
+                            {{ team }} <i class="small">({{ team.authors }})</i>
                         </li>
                     {% endfor %}
                 </ul>
             </div>
         </div>
-    {% endif %}
 
+    {% endif %}
+    <hr>
     {% include "web/authors.html" %}
 </div>
 
@@ -112,5 +141,12 @@
         window.charts[$item.find('.carousel-chart').data('chart')].draw();
     });
 </script>
+<div class="modal fade" id="chart-modal">
+    <div class="modal-dialog modal-chart" role="document">
+        <div class="modal-content">
+            <div class="modal-body"></div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

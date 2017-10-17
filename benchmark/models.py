@@ -1,4 +1,5 @@
 # coding=utf-8
+from operator import attrgetter
 from uuid import uuid4
 
 from django.db import models
@@ -23,6 +24,13 @@ class Team(BaseModel):
 
     def __str__(self):
         return self.leader_login
+
+    @property
+    def authors(self):
+        return ', '.join(map(str, filter(None, map(attrgetter('login'), self.result_author_team.all()))))
+
+    class Meta(object):
+        ordering = ['leader_login', ]
 
 
 class ResultAuthor(BaseModel):

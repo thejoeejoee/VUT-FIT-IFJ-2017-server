@@ -2,7 +2,7 @@
     <script type="text/javascript">
         jQuery(function ($) {
             google.charts.setOnLoadCallback(function () {
-                var char_key = 'chart-{{ case.slug }}';
+                var char_key = 'chart-{{ prefix|default:'' }}-{{ case.slug }}';
                 var chart = {
                     'draw': null,
                     'data': null,
@@ -22,17 +22,15 @@
                         curveType: 'function',
                         title: linkify('{{ case }}', '{{ case.info }}'),
                         legend: {
-                            position: 'top',
+                            position: 'none',
                             maxLines: 4
                         }
-
                     };
-
                     chart.chart = new google.visualization.LineChart(document.getElementById(char_key));
                     chart.chart.draw(chart.data, options);
                 };
                 jQuery.ajax({
-                    dataType: "json",
+                    dataType: 'json',
                     url: '{% url 'api:chart_result_data' case.pk %}',
                     success: function (data) {
                         chart.data = google.visualization.arrayToDataTable(data.data, false);
@@ -43,5 +41,5 @@
             });
         });
     </script>
-    <div class="carousel-chart" data-chart="chart-{{ case.slug }}" id="chart-{{ case.slug }}"></div>
+    <div class="carousel-chart" data-chart="chart-{{ prefix|default:'' }}-{{ case.slug }}" id="chart-{{ prefix|default:'' }}-{{ case.slug }}"></div>
 </div>
