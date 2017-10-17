@@ -19,7 +19,7 @@ class HomepageView(TemplateView):
             ).order_by('-avg')[:5],
             teams=Team.objects.filter(
                 result_author_team__result_author__isnull=False
-            ).distinct()
+            ).distinct().order_by('x_created', )
         )
 
 

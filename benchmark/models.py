@@ -30,7 +30,7 @@ class Team(BaseModel):
         return ', '.join(map(str, filter(None, map(attrgetter('login'), self.result_author_team.all()))))
 
     class Meta(object):
-        ordering = ['leader_login', ]
+        ordering = ['x_created', ]
 
 
 class ResultAuthor(BaseModel):
@@ -42,6 +42,9 @@ class ResultAuthor(BaseModel):
 
     def __str__(self):
         return '{} ({})'.format(self.login, self.team)
+
+    class Meta(object):
+        ordering = ['x_created', ]
 
 
 class TestCase(BaseModel):
