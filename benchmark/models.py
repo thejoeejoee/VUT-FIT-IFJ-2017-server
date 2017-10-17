@@ -50,7 +50,7 @@ class ResultAuthor(BaseModel):
 class TestCase(BaseModel):
     section = models.CharField(max_length=64)
     name = models.CharField(max_length=64)
-    info = models.CharField(max_length=128)
+    info = models.CharField(max_length=128, blank=True)
 
     def __str__(self):
         return '/'.join((self.section, self.name))
