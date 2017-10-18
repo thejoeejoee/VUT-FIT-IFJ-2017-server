@@ -27,6 +27,7 @@
 
         google.charts.load('current', {packages: ['corechart']});
         window.charts = {};
+        window.contentWidth = $('.main-content').width();
 
         var chartDetail = function (url) {
             window.event.preventDefault();
@@ -44,6 +45,10 @@
     <style>
         .carousel-chart {
             padding-bottom: 20px;
+        }
+
+        #carousel-charts {
+            min-height: 500px;
         }
 
         .carousel-control {
@@ -66,10 +71,19 @@
         .modal-chart {
             max-width: 1140px;
         }
+
+        a.btn-chart-detail:not([href]) {
+            color: white;
+            cursor: pointer;
+        }
+        a.btn-chart-detail:not([href]):hover {
+            color: white;
+            background-color: #008500;
+        }
     </style>
 </head>
 <body>
-<div class="container">
+<div class="container main-content">
     <h1 class="text-center display-3">Optimalizační soutěž <code>IFJcode17</code></h1>
     <p class="lead">
         Server slouží pro sběr dat z ohodnocovacího interpretu jazyka <code>IFJcode17</code>.<br>
@@ -98,29 +112,36 @@
                 {% endfor %}
             </div>
             <a class="carousel-control carousel-control-prev" href="#carousel-charts" role="button" data-slide="prev">
-                <span class="display-4">◀</span>
+                <span class="display-5">◀</span>
                 <span class="sr-only">Předchozí</span>
             </a>
             <a class="carousel-control carousel-control-next" href="#carousel-charts" role="button" data-slide="next">
-                <span class="display-4">▶</span>
+                <span class="display-5">▶</span>
                 <span class="sr-only">Následující</span>
             </a>
         </div>
         <div class="row">
-            <div class="col">
-                <h4>Jednotlivé soutěže <i class="small">(průměr výsledků)</i></h4>
+            <div class="col-lg-6">
+                <h5>Jednotlivé soutěže <i class="small">(průměr, počet výsledků)</i></h5>
                 <ul class="list-group">
                     {% for case in cases %}
                         <li class="list-group-item">
-                            {{ case }} <i class="small">({{ case.average_price|floatformat }})</i>
-                            <a onclick="chartDetail('{% url 'web:chart_detail' case.pk %}')" href="#" class="badge badge-success">detail</a>
-                            <a href="{{ case.github_link }}" class="badge badge-primary">Github</a>
+                            <div class="row justify-content-beetween">
+                                <div class="col">
+                                    {{ case }}
+                                    <i class="small">({{ case.average_price|floatformat }}, {{ case.result_test_case.count }})</i>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <a onclick="chartDetail('{% url 'web:chart_detail' case.pk %}')" class="badge badge-success btn-chart-detail">detail</a>
+                                    <a href="{{ case.github_link }}" class="badge badge-primary">Github</a>
+                                </div>
+                            </div>
                         </li>
                     {% endfor %}
                 </ul>
             </div>
-            <div class="col">
-                <h4>Evidované týmy</h4>
+            <div class="col-lg-6">
+                <h5>Evidované týmy</h5>
                 <ul class="list-group">
                     {% for team in teams %}
                         <li class="list-group-item">

@@ -17,7 +17,7 @@
                 chart.draw = function drawChart() {
                     var options = {
                         height: 480,
-                        width: 1110,
+                        width: $('.main-content').width(),
                         interpolateNulls: true,
                         curveType: 'function',
                         title: linkify('{{ case }}', '{{ case.info }}'),
