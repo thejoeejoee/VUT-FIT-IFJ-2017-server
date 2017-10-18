@@ -84,7 +84,7 @@
 </head>
 <body>
 <div class="container main-content">
-    <h1 class="text-center display-3">Optimalizační soutěž <code>IFJcode17</code></h1>
+    <h1 class="text-center display-4">Optimalizační soutěž <code>IFJcode17</code></h1>
     <p class="lead">
         Server slouží pro sběr dat z ohodnocovacího interpretu jazyka <code>IFJcode17</code>.<br>
         Princip <strong>včetně automatických integračních testů</strong> je detailně popsán ve
@@ -92,8 +92,8 @@
             Githubu</a>.
     </p>
 
-    {% if not main_cases %}
-        <div class="alert alert-info">Zatím žádná evidovaná data.</div>
+    {% if not main_cases.exists %}
+        <div class="alert alert-info">Prozatím nedostatek dat pro zobrazení vývoje.</div>
     {% else %}
         <h3>Vývoj hlavních benchmarků</h3>
         <div id="carousel-charts" class="carousel slide" data-ride="carousel">
@@ -120,6 +120,9 @@
                 <span class="sr-only">Následující</span>
             </a>
         </div>
+
+    {% endif %}
+    {% if cases.exists %}
         <div class="row">
             <div class="col-lg-6">
                 <h5>Jednotlivé soutěže <i class="small">(průměr, počet výsledků)</i></h5>
@@ -151,7 +154,6 @@
                 </ul>
             </div>
         </div>
-
     {% endif %}
     <hr>
     {% include "web/authors.html" %}

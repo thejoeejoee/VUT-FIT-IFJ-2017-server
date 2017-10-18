@@ -16,7 +16,9 @@ class HomepageView(TemplateView):
                 result_test_case__isnull=False
             ).annotate(
                 avg=Avg(F('result_test_case__operand_price') + F('result_test_case__instruction_price'))
-            ).order_by('-avg')[:5],
+            ).order_by('-avg').filter(
+                section__icontains='99'
+            ),
             teams=Team.objects.filter(
                 result_author_team__result_author__isnull=False
             ).distinct().order_by('x_created', )
