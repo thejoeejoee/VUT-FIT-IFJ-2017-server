@@ -20,11 +20,7 @@ ROOT_APP_DIR = os.path.join(BASE_DIR, 'ifj')
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'd5t%e0)*+mynf3s9vyw9n+w(y3@5qjp#*s(9#vm%_5e6+7njq2'
-
-RECAPTCHA_PUBLIC_KEY = '6LcaMiwUAAAAAHvDpMOQkQpVwULgYiHqYW1hLr5M'
-RECAPTCHA_PRIVATE_KEY = '6LcaMiwUAAAAALhli6MAPw9S90yavHH-NCt5ujpk'
-NOCAPTCHA = True
+SECRET_KEY = 'd5t%e0)*+8784846GOIiid!"/"@5qjp#*s(9#vm%_5e6+7njq2'
 
 LOGGING = {
     'version': 1,
