@@ -27,7 +27,7 @@ class Team(BaseModel):
 
     @property
     def authors(self):
-        return ', '.join(map(str, filter(None, map(attrgetter('login'), self.result_author_team.all()))))
+        return ', '.join(map(str, set(filter(None, map(attrgetter('login'), self.result_author_team.all())))))
 
     class Meta(object):
         ordering = ['x_created', ]
