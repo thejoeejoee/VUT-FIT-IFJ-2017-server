@@ -2,6 +2,8 @@
 import re
 from json import loads
 
+from django.core.cache import cache
+from django.db.models import F
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views import View
@@ -77,7 +79,14 @@ class BenchmarkResultView(BaseApiView):
             case, _ = TestCase.objects.get_or_create(
                 name=report.get('name'),
                 section=report.get('section')
-            )
+            )  # type: TestCase, bool
+            if Result.objects.filter(
+                    test_case=case,
+            ).annotate(
+                price=F('operand_price') + F('instruction_price')
+            ).filter(price__lt=report.get('operand_price') + report.get('instruction_price')).exists():
+                cache.delete(case.cache_key)
+
             Result.objects.create(
                 author=author,
                 test_case=case,
@@ -91,8 +100,12 @@ class ChartResultDataView(View):
 
     def get(self, request, *args, **kwargs):
         self.test_case = get_object_or_404(TestCase, pk=self.kwargs.get('pk'))
+        cached = cache.get(self.test_case.cache_key)
+        if not cached:
+            cached = Result.objects.test_case_results(self.test_case)
+            cache.set(self.test_case.cache_key, cached)
 
         return JsonResponse(
-            Result.objects.test_case_results(self.test_case),
+            cached,
             json_dumps_params=dict(indent=4)
         )

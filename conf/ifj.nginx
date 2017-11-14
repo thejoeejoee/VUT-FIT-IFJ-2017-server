@@ -16,7 +16,6 @@ server {
 
 server {
     listen 80;
-    listen [::]:80 ipv6only=on;
 
     server_name 80.211.194.66 ifj.josefkolar.cz;
     client_max_body_size 8M;

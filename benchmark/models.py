@@ -56,6 +56,10 @@ class TestCase(BaseModel):
         return '/'.join((self.section, self.name))
 
     @property
+    def cache_key(self):
+        return 'test-case_{}'.format(self.id)
+
+    @property
     def slug(self):
         return slugify(str(self))
 
