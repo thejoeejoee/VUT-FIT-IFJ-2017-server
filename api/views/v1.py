@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.views import View
 from ipware.ip import get_ip
 
+from api.utils import async_call
 from benchmark.models import ResultAuthor, Team, TestCase, Result
 
 
@@ -99,7 +100,14 @@ class ChartResultDataView(View):
     test_case = None  # type: TestCase
 
     def get(self, request, *args, **kwargs):
-        self.test_case = get_object_or_404(TestCase, pk=self.kwargs.get('pk'))
+        self.test_case = get_object_or_404(
+            TestCase.objects.prefetch_related(
+                'result_test_case',
+                'result_test_case__author',
+                'result_test_case__author__team',
+            ),
+            pk=self.kwargs.get('pk')
+        )
         cached = cache.get(self.test_case.cache_key)
         if not cached:
             cached = Result.objects.test_case_results(self.test_case)

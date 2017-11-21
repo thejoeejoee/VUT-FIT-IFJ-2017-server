@@ -20,7 +20,7 @@ class TestResultManager(Manager):
 
         delta = end - start  # timedelta
 
-        days = tuple((start + timedelta(days=i)).date() for i in range(delta.days + 2))
+        days = tuple((start + timedelta(days=i)).date() for i in range(delta.days + 1))[-10:]
         teams = tuple(unique(
             test_case.result_test_case.values_list(
                 'author__team__leader_login',

@@ -90,6 +90,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
 
     'web',
     'benchmark',
@@ -163,12 +164,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGE_CODE = 'en'
+LANGUAGE_CODE = 'cs'
 
 TIME_ZONE = 'Europe/Prague'
 
 LANGUAGES = (
-    ('en', gettext('English')),
+    ('cs', gettext('Czech')),
 )
 
 LOCALE_PATHS = os.path.join(BASE_DIR, 'locale'),

@@ -1,3 +1,4 @@
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,18 +30,26 @@
         window.charts = {};
         window.contentWidth = $('.main-content').width();
 
-        var chartDetail = function (url) {
-            window.event.preventDefault();
+        var chartDetail = function (pk, url) {
+            if (window.event) {
+                window.event.preventDefault();
+            }
             jQuery.get({
                 url: url,
                 success: function (html) {
                     var $modal = $('#chart-modal');
                     $modal.find('.modal-body').html(html);
                     $modal.modal('show');
-
+                    window.location.hash = pk;
                 }
             })
         };
+        window.ga = gtag;
+
+        if (window.location.hash) {
+            console.log('{% url "web:chart_detail" 'abcdef' %}'.replace('abcdef', window.location.hash));
+            chartDetail(window.location.hash, '{% url "web:chart_detail" 'abcdef' %}'.replace('abcdef', window.location.hash.replace('#', '')));
+        }
     </script>
     <style>
         .carousel-chart {
@@ -76,6 +85,7 @@
             color: white;
             cursor: pointer;
         }
+
         a.btn-chart-detail:not([href]):hover {
             color: white;
             background-color: #008500;
@@ -92,10 +102,18 @@
             Githubu</a>.
     </p>
 
+    <div class="alert alert-warning">
+        Omluvte tu (ne)rychlost grafů, jestli najdeme čas, upravíme ještě do pokusného na databázovou agregaci.
+    </div>
+
     {% if not main_cases.exists %}
         <div class="alert alert-info">Prozatím nedostatek dat pro zobrazení vývoje.</div>
     {% else %}
-        <h3>Vývoj hlavních benchmarků</h3>
+        <h3>
+            Vývoj hlavních benchmarků
+            <small class="display-6 small text-muted">{{ last_result.x_created|naturaltime }}</small>
+        </h3>
+
         <div id="carousel-charts" class="carousel slide" data-ride="carousel">
             <ol class="carousel-indicators">
                 {% for case in main_cases %}
@@ -122,33 +140,49 @@
         </div>
 
     {% endif %}
-    {% if cases.exists %}
+    {% if sections %}
         <div class="row">
             <div class="col-lg-6">
                 <h5>Jednotlivé soutěže <i class="small">(průměr, počet výsledků)</i></h5>
-                <ul class="list-group">
-                    {% for case in cases %}
-                        <li class="list-group-item">
-                            <div class="row justify-content-beetween">
-                                <div class="col">
-                                    {{ case }}
-                                    <i class="small">({{ case.average_price|floatformat }}, {{ case.result_test_case.count }})</i>
-                                </div>
-                                <div class="col-4 text-right">
-                                    <a onclick="chartDetail('{% url 'web:chart_detail' case.pk %}')" class="badge badge-success btn-chart-detail">detail</a>
-                                    <a href="{{ case.github_link }}" class="badge badge-primary">Github</a>
-                                </div>
+                <div id="acordion" role="tablist">
+                    {% for name, section in sections %}
+                        <div class="card">
+                            <div class="card-header">
+                                <a data-toggle="collapse" href="#section-{{ name }}" class="d-block">{{ name }}</a>
                             </div>
-                        </li>
+                            <div id="section-{{ name }}" class="collapse" data-parent="#acordion">
+                                <ul class="list-group list-group-flush">
+                                    {% for case in section.cases_in_section %}
+                                        <li class="list-group-item">
+                                            <div class="row justify-content-beetween">
+                                                <div class="col">
+                                                    {{ case }}
+                                                    <i class="small">({{ case.average_price|floatformat }}, {{ case.result_test_case.count }})</i>
+                                                </div>
+                                                <div class="col-4 text-right">
+                                                    <a onclick="chartDetail('{{ case.pk }}', '{% url 'web:chart_detail' case.pk %}')" class="badge badge-success btn-chart-detail">detail</a>
+                                                    <a href="{{ case.github_link }}" class="badge badge-primary">Github</a>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
                     {% endfor %}
-                </ul>
+                </div>
+
+
             </div>
+
+
             <div class="col-lg-6">
                 <h5>Evidované týmy</h5>
                 <ul class="list-group">
                     {% for team in teams %}
                         <li class="list-group-item">
-                            {{ team }} <i class="small">({{ team.authors }})</i>
+                            {{ team }} <i class="small">{{ team.last_result.x_created|naturaltime }}</i><br>
+                            <i class="small">{{ team.authors }}</i>
                         </li>
                     {% endfor %}
                 </ul>

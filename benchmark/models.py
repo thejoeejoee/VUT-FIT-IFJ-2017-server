@@ -29,6 +29,10 @@ class Team(BaseModel):
     def authors(self):
         return ', '.join(map(str, set(filter(None, map(attrgetter('login'), self.result_author_team.all())))))
 
+    @property
+    def last_result(self):
+        return self.result_author_team.latest('result_author__x_created').result_author.latest('x_created')
+
     class Meta(object):
         ordering = ['x_created', ]
 
@@ -65,7 +69,7 @@ class TestCase(BaseModel):
 
     @property
     def github_link(self):
-        return 'https://github.com/thejoeejoee/VUT-FIT-IFJ-2017-tests/blob/master/tests/{}/{}.code'.format(
+        return 'https://github.com/thejoeejoee/VUT-FIT-IFJ-2017-tests/blob/master/ifj2017/tests/{}/{}.code'.format(
             self.section,
             self.name
         )
@@ -73,6 +77,10 @@ class TestCase(BaseModel):
     @property
     def average_price(self):
         return self.result_test_case.aggregate(avg=Avg(F('operand_price') + F('instruction_price'))).get('avg')
+
+    @property
+    def cases_in_section(self):
+        return TestCase.objects.filter(section=self.section).order_by('name')
 
     class Meta(object):
         unique_together = ('section', 'name'),
