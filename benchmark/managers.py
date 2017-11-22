@@ -51,9 +51,8 @@ class TestResultManager(Manager):
         """
         progresses = test_case.v_benchmark_result_price_progress_test_case.order_by('-day')[:10]  # type: QuerySet
 
-        days = tuple(map(methodcaller('strftime', '%d. %m.'), progresses.values_list('day', flat=True)[::-1]))
+        days = tuple(map(methodcaller('strftime', '%d. %m.'), progresses.only('day').values_list('day', flat=True)[::-1]))
         progresses = list(progresses)
-        teams = []
         teams = list(
             unique([name for progress in progresses for name in progress.team_leader_logins])
         )

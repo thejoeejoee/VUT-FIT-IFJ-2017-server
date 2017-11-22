@@ -94,23 +94,27 @@
 </head>
 <body>
 <div class="container main-content">
-    <h1 class="text-center display-4">Optimalizační soutěž <code>IFJcode17</code></h1>
+    <h1 class="text-center display-4">Sada nástrojů pro <code>IFJcode17</code></h1>
     <p class="lead">
-        Server slouží pro sběr dat z ohodnocovacího interpretu jazyka <code>IFJcode17</code>.<br>
-        Princip <strong>včetně automatických integračních testů</strong> je detailně popsán ve
-        <a class="h6" target="_blank" href="https://github.com/thejoeejoee/VUT-FIT-IFJ-2017-tests/wiki">Wiki na
-            Githubu</a>.
+        Sada nástrojů obsahuje integrační testy pro kompilátory jazyka <code>IFJ17</code>, vývojové prostředí s
+        debuggerem pro jazyk <code>IFJcode17</code> a také tento server agregaci dosavadních výsledků.
+        <br>
+
+        <a class="display-5" target="_blank" href="https://github.com/thejoeejoee/VUT-FIT-IFJ-2017-tests/wiki">
+           Veškeré informace k nástrojům, včetně instalace, jsou popsány ve Wiki.
+        </a>
     </p>
 
-    <div class="alert alert-warning">
-        Omluvte tu (ne)rychlost grafů, jestli najdeme čas, upravíme ještě do pokusného na databázovou agregaci.
+    <div class="alert alert-info">
+        Chyby, nesrovnalosti a jakékoliv další připomínky prosím směřujte na
+        <a href="https://github.com/thejoeejoee/VUT-FIT-IFJ-2017-toolkit/issues/new">GitHub do issues</a>, děkujeme!
     </div>
 
     {% if not main_cases.exists %}
         <div class="alert alert-info">Prozatím nedostatek dat pro zobrazení vývoje.</div>
     {% else %}
         <h3>
-            Vývoj hlavních benchmarků
+            Nejzajímavější porovnání
             <small class="display-6 small text-muted">{{ last_result.x_created|naturaltime }}</small>
         </h3>
 
@@ -143,7 +147,7 @@
     {% if sections %}
         <div class="row">
             <div class="col-lg-6">
-                <h5>Jednotlivé soutěže <i class="small">(průměr, počet výsledků)</i></h5>
+                <h5>Porovnání jednotlivě</h5>
                 <div id="acordion" role="tablist">
                     {% for name, cases in sections %}
                         <div class="card">
@@ -157,7 +161,6 @@
                                             <div class="row justify-content-beetween">
                                                 <div class="col">
                                                     {{ case }}
-                                                    <i class="small">({{ case.average_price|floatformat }}, {{ case.results_count }})</i>
                                                 </div>
                                                 <div class="col-4 text-right">
                                                     <a onclick="chartDetail('{{ case.pk }}', '{% url 'web:chart_detail' case.pk %}')" class="badge badge-success btn-chart-detail">detail</a>
@@ -171,17 +174,14 @@
                         </div>
                     {% endfor %}
                 </div>
-
-
             </div>
-
 
             <div class="col-lg-6">
                 <h5>Evidované týmy</h5>
                 <ul class="list-group">
                     {% for team in teams %}
                         <li class="list-group-item">
-                            {{ team }} <i class="small">{{ team.last_result.x_created|naturaltime }}</i><br>
+                            {{ team }}<br>
                             <i class="small">{{ team.authors }}</i>
                         </li>
                     {% endfor %}

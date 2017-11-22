@@ -1,9 +1,7 @@
 # coding=utf-8
-from operator import attrgetter
 
-from django.contrib.postgres.aggregates.general import ArrayAgg
-from django.db.models import Avg, F
-from django.db.models.aggregates import Count, Max
+from django.core.cache import cache
+from django.db.models.aggregates import Count
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 
@@ -15,28 +13,25 @@ class HomepageView(TemplateView):
     template_name = "web/index.html"
 
     def get_context_data(self, **kwargs):
-        sections = DefaultOrderedDict(list)
-        for test_case in TestCase.objects.order_by('section').prefetch_related(
-                'result_test_case',
-        ).annotate(
-            average_price=Avg(F('result_test_case__operand_price') + F('result_test_case__instruction_price')),
-            results_count=Count('result_test_case__id'),
-        ):
-            sections[test_case.section].append(test_case)
+        sections = cache.get('sections')
+        if not sections:
+            sections = DefaultOrderedDict(list)
+            for test_case in TestCase.objects.order_by('section'):
+                sections[test_case.section].append(test_case)
+            cache.set('sections', [(k, tuple(v)) for k, v in sections.items()])
+            sections = sections.items()
 
         return dict(
-            sections=sections.items(),
+            sections=sections,
+
             main_cases=TestCase.objects.filter(
                 result_test_case__isnull=False
             ).annotate(
-                avg=Avg(F('result_test_case__operand_price') + F('result_test_case__instruction_price'))
-            ).annotate(
                 team_count=Count('result_test_case__author__team', distinct=True)
-            ).order_by('-result_test_case__author__team')[:8],
+            ).order_by('-team_count')[:8],
 
-            teams=Team.objects.prefetch_related('result_author_team__result_author').filter(
-                result_author_team__result_author__isnull=False
-            ).distinct(), reverse=True, key=attrgetter('last_result.x_created'),
+            teams=Team.objects.distinct().order_by('x_created'),
+            last_result=Result.objects.latest('x_created'),
         )
 
 

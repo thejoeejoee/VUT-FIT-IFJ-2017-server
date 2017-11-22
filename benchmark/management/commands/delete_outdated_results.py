@@ -4,10 +4,11 @@ from datetime import timedelta
 from operator import attrgetter
 
 from django.core.management import BaseCommand
+from django.db import transaction
 from django.db.models import F
 from django.utils.timezone import now
 
-from benchmark.models import Result, VBenchmarkResultPriceProgress
+from benchmark.models import Result
 
 
 class Command(BaseCommand):
@@ -22,6 +23,7 @@ class Command(BaseCommand):
         for arg in args:
             self.stderr.write('{}\n'.format(arg))
 
+    # @transaction.atomic
     def _process(self, *args, **options):
         self.log('Starting...')
 
@@ -38,36 +40,20 @@ class Command(BaseCommand):
         ).annotate(
             price_=F('operand_price') + F('instruction_price'),
             leader_login=F('author__team__leader_login')
-        ).order_by('x_created').exclude(id__in=map(attrgetter('id'), self.kept)).iterator():
-            deleted, info = result.test_case.result_test_case.annotate(
+        ).order_by('-x_created').exclude(id__in=self.kept).iterator():
+
+            deleted = Result.objects.annotate(
                 price_value=F('operand_price') + F('instruction_price')
             ).filter(
+                test_case=result.test_case,
                 price_value__lte=result.price_,
                 author__team=result.author.team,
                 x_created__date=result.x_created.date()
-            ).exclude(pk=result.pk).delete()
+            ).exclude(pk=result.pk)._raw_delete('default')
             if deleted:
-                self.log('Deleted many: {}.'.format(info))
+                self.kept.add(result.id)
+                self.log('Deleted many: {}.'.format(deleted))
                 return True
 
-            if not VBenchmarkResultPriceProgress.objects.filter(
-                    test_case=result.test_case,
-                    team_leader_logins__contains=[result.leader_login],
-                    prices__contains=[result.price_],
-            ).exists():
-                self.log('DEL {}.'.format(result))
-                result.delete()
-                continue
-
-            if result.test_case.result_test_case.annotate(
-                    price_=F('operand_price') + F('instruction_price')
-            ).filter(
-                price_=result.price_,
-                author__team=result.author.team
-            ).exclude(pk=result.pk).exists():
-                self.log('DEL {}.'.format(result))
-                result.delete()
-                continue
-
             self.log('KEEP {}.'.format(result))
-            self.kept.add(result)
+

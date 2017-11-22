@@ -9,7 +9,6 @@ from django.shortcuts import get_object_or_404
 from django.views import View
 from ipware.ip import get_ip
 
-from api.utils import async_call
 from benchmark.models import ResultAuthor, Team, TestCase, Result
 
 
@@ -108,7 +107,7 @@ class ChartResultDataView(View):
             ),
             pk=self.kwargs.get('pk')
         )
-        cached = None # cache.get(self.test_case.cache_key)
+        cached = cache.get(self.test_case.cache_key)
         if not cached:
             cached = Result.objects.test_case_results(self.test_case)
             cache.set(self.test_case.cache_key, cached)

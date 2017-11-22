@@ -15,8 +15,8 @@ CREATE OR REPLACE VIEW v_benchmark_result_price_progress AS
       GROUP BY test_case_id
   ), days AS (
       SELECT
-        id                                                                AS test_case_id,
-        generate_series(first.first, last.last, INTERVAL '1 DAY') :: DATE AS day
+        id                                                                                   AS test_case_id,
+        generate_series(first.first, last.last + INTERVAL '1 DAY', INTERVAL '1 DAY') :: DATE AS day
       FROM benchmark_testcase
         INNER JOIN first ON first.test_case_id = id
         INNER JOIN last ON last.test_case_id = id
