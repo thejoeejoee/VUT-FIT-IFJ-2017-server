@@ -1,8 +1,8 @@
 # coding=utf-8
-from datetime import timedelta
+from operator import methodcaller
+from typing import Dict, Iterable
 
-from django.db.models.aggregates import Min
-from django.db.models.expressions import F
+from django.db.models import QuerySet
 from django.db.models.manager import Manager
 
 
@@ -13,34 +13,52 @@ def unique(seq):
 
 
 class TestResultManager(Manager):
-    def test_case_results(self, test_case):
-        # type: (TestCase) -> dict
-        start = test_case.result_test_case.earliest('x_created').x_created
-        end = test_case.result_test_case.latest('x_created').x_created
+    def test_case_results(self, test_case: "models.TestCase") -> Dict[str, Iterable]:
+        """
+        {
+            "teams": [
+                "xharmi00",
+                "xhraba12",
+                "xkobel02",
+                ...
+            ],
+            "data": [
+                [
+                    "Date",
+                    "xharmi00",
+                    "xhraba12",
+                    "xkobel02",
+                    ...
+                ],
+                [
+                    "12. 11.",
+                    null,
+                    null,
+                    33,
+                    25,
+                    null,
+                    null,
+                    null
+                ],
+            ],
+            "days": [
+                "2017-11-12",
+                "2017-11-13",
+                ...
+            ]
+        }
+        :return:
+        """
+        progresses = test_case.v_benchmark_result_price_progress_test_case.order_by('day')  # type: QuerySet
+        teams = test_case.v_benchmark_result_price_progress_test_case.order_by('logins').last().logins
+        days = progresses.values_list('day', flat=True)
+        teams_count = len(teams)
+        days_count = len(days)
 
-        delta = end - start  # timedelta
-
-        days = tuple((start + timedelta(days=i)).date() for i in range(delta.days + 1))[-10:]
-        teams = tuple(unique(
-            test_case.result_test_case.values_list(
-                'author__team__leader_login',
-                flat=True
-            ).order_by('author__team__leader_login')
-        ))
-        data = [
-            ['Date', *teams],
-            *(
-                [day.strftime('%d. %m.'), *(
-                    test_case.result_test_case.filter(
-                        x_created__date=day,
-                        author__team__leader_login=login
-                    ).aggregate(min=Min(F('operand_price') + F('instruction_price'))).get('min') for login in teams
-                )] for day in days
-            )
-        ]
+        data = [[None for _ in range(teams_count)] for _ in range(days_count)]
 
         return dict(
-            days=days,
+            days=tuple(map(methodcaller('strftime', '%d. %m'), days)),
             teams=teams,
             data=data
         )

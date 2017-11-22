@@ -1,0 +1,1 @@
+DROP VIEW IF EXISTS v_benchmark_result_price_progress RESTRICT;

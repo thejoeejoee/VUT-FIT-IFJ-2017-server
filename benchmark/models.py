@@ -2,6 +2,8 @@
 from operator import attrgetter
 from uuid import uuid4
 
+from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields.array import ArrayField
 from django.db import models
 from django.db.models import Avg, F
 from django.utils import timezone
@@ -31,7 +33,9 @@ class Team(BaseModel):
 
     @property
     def last_result(self):
-        return self.result_author_team.latest('result_author__x_created').result_author.latest('x_created')
+        return self.result_author_team.filter(
+            result_author__isnull=False
+        ).latest('result_author__x_created').result_author.latest('x_created')
 
     class Meta(object):
         ordering = ['x_created', ]
@@ -102,3 +106,17 @@ class Result(BaseModel):
 
     def __str__(self):
         return '{} - {} - {}'.format(self.test_case, self.author, self.price)
+
+
+class VBenchmarkResultPriceProgress(models.Model):
+    test_case = models.ForeignKey(TestCase, related_name='v_benchmark_result_price_progress_test_case')
+    day = models.DateField()
+    logins = ArrayField(models.CharField(max_length=128))
+    prices = ArrayField(models.IntegerField())
+
+    def __str__(self):
+        return '{} - {} - {}'.format(self.test_case, self.day, self.logins), self.prices
+
+    class Meta(object):
+        managed = False
+        db_table = 'v_benchmark_result_price_progress'

@@ -15,11 +15,29 @@ server {
 }
 
 server {
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/ifj.josefkolar.cz/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/ifj.josefkolar.cz/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+
+    if ($scheme != "https") {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
     listen 80;
 
     server_name 80.211.194.66 ifj.josefkolar.cz;
     client_max_body_size 8M;
     expires $expires;
+    root /home/ifj/ifj.cz/;
+
+    if (-f $document_root/maintenance.html) {
+        return 503;
+    }
+    error_page 503 @maintenance;
+    location @maintenance {
+        rewrite ^(.*)$ /maintenance.html break;
+    }
 
     location = /google63f834c06dd84f21.html {
         alias /home/ifj/ifj.cz/static/google63f834c06dd84f21.html;
@@ -41,16 +59,4 @@ server {
         include proxy_params;
         proxy_pass http://unix:/home/ifj/ifj.cz/ifj.sock;
     }
-
-
-    listen 443 ssl; # managed by Certbot
-ssl_certificate /etc/letsencrypt/live/ifj.josefkolar.cz/fullchain.pem; # managed by Certbot
-ssl_certificate_key /etc/letsencrypt/live/ifj.josefkolar.cz/privkey.pem; # managed by Certbot
-    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
-
-
-    if ($scheme != "https") {
-        return 301 https://$host$request_uri;
-    } # managed by Certbot
-
 }
