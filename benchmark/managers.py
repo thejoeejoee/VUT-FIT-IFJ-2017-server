@@ -49,13 +49,20 @@ class TestResultManager(Manager):
         }
         :return:
         """
-        progresses = test_case.v_benchmark_result_price_progress_test_case.order_by('day')  # type: QuerySet
-        teams = test_case.v_benchmark_result_price_progress_test_case.order_by('logins').last().logins
-        days = progresses.values_list('day', flat=True)
-        teams_count = len(teams)
-        days_count = len(days)
-
-        data = [[None for _ in range(teams_count)] for _ in range(days_count)]
+        progresses = test_case.v_benchmark_result_price_progress_test_case.order_by('-day')[:10]  # type: QuerySet
+        teams = test_case.v_benchmark_result_price_progress_test_case.order_by(
+            'team_leader_logins'
+        ).last().team_leader_logins
+        days = progresses.values_list('day', flat=True)[::-1]
+        data = [
+            [
+                progress.prices[progress.team_leader_logins.index(team)]
+                if team in progress.team_leader_logins
+                else None
+                for team in teams
+            ]
+            for progress in progresses[::-1]
+        ]
 
         return dict(
             days=tuple(map(methodcaller('strftime', '%d. %m'), days)),

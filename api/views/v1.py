@@ -108,7 +108,7 @@ class ChartResultDataView(View):
             ),
             pk=self.kwargs.get('pk')
         )
-        cached = cache.get(self.test_case.cache_key)
+        cached = None # cache.get(self.test_case.cache_key)
         if not cached:
             cached = Result.objects.test_case_results(self.test_case)
             cache.set(self.test_case.cache_key, cached)

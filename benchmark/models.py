@@ -111,7 +111,7 @@ class Result(BaseModel):
 class VBenchmarkResultPriceProgress(models.Model):
     test_case = models.ForeignKey(TestCase, related_name='v_benchmark_result_price_progress_test_case')
     day = models.DateField()
-    logins = ArrayField(models.CharField(max_length=128))
+    team_leader_logins = ArrayField(models.CharField(max_length=128))
     prices = ArrayField(models.IntegerField())
 
     def __str__(self):

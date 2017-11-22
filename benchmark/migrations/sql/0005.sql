@@ -48,7 +48,7 @@ CREATE OR REPLACE VIEW v_benchmark_result_price_progress AS
       test_case_id            AS id,
       test_case_id,
       best_results_normalized.day,
-      array_agg(leader_login) AS logins,
+      array_agg(leader_login) AS team_leader_logins,
       array_agg(price)        AS prices
     FROM best_results_normalized
       LEFT JOIN benchmark_team ON best_results_normalized.team_id = benchmark_team.id
