@@ -50,22 +50,27 @@ class TestResultManager(Manager):
         :return:
         """
         progresses = test_case.v_benchmark_result_price_progress_test_case.order_by('-day')[:10]  # type: QuerySet
-        teams = test_case.v_benchmark_result_price_progress_test_case.order_by(
-            'team_leader_logins'
-        ).last().team_leader_logins
-        days = progresses.values_list('day', flat=True)[::-1]
+
+        days = tuple(map(methodcaller('strftime', '%d. %m.'), progresses.values_list('day', flat=True)[::-1]))
+        progresses = list(progresses)
+        teams = []
+        teams = list(
+            unique([name for progress in progresses for name in progress.team_leader_logins])
+        )
         data = [
-            [
-                progress.prices[progress.team_leader_logins.index(team)]
-                if team in progress.team_leader_logins
-                else None
-                for team in teams
-            ]
-            for progress in progresses[::-1]
-        ]
+                   ['Date'] + teams
+               ] + [
+                   [days[day_i]] + [
+                       progress.prices[progress.team_leader_logins.index(team)]
+                       if team in progress.team_leader_logins
+                       else None
+                       for team in teams
+                   ]
+                   for day_i, progress in enumerate(progresses[::-1])
+               ]
 
         return dict(
-            days=tuple(map(methodcaller('strftime', '%d. %m'), days)),
+            days=days,
             teams=teams,
             data=data
         )

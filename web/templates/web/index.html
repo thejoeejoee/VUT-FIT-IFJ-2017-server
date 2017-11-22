@@ -145,19 +145,19 @@
             <div class="col-lg-6">
                 <h5>Jednotlivé soutěže <i class="small">(průměr, počet výsledků)</i></h5>
                 <div id="acordion" role="tablist">
-                    {% for name, section in sections %}
+                    {% for name, cases in sections %}
                         <div class="card">
                             <div class="card-header">
                                 <a data-toggle="collapse" href="#section-{{ name }}" class="d-block">{{ name }}</a>
                             </div>
                             <div id="section-{{ name }}" class="collapse" data-parent="#acordion">
                                 <ul class="list-group list-group-flush">
-                                    {% for case in section.cases_in_section %}
+                                    {% for case in cases %}
                                         <li class="list-group-item">
                                             <div class="row justify-content-beetween">
                                                 <div class="col">
                                                     {{ case }}
-                                                    <i class="small">({{ case.average_price|floatformat }}, {{ case.result_test_case.count }})</i>
+                                                    <i class="small">({{ case.average_price|floatformat }}, {{ case.results_count }})</i>
                                                 </div>
                                                 <div class="col-4 text-right">
                                                     <a onclick="chartDetail('{{ case.pk }}', '{% url 'web:chart_detail' case.pk %}')" class="badge badge-success btn-chart-detail">detail</a>

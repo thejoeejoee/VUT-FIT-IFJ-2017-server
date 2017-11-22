@@ -2,7 +2,6 @@
 from operator import attrgetter
 from uuid import uuid4
 
-from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.fields.array import ArrayField
 from django.db import models
 from django.db.models import Avg, F
@@ -33,7 +32,7 @@ class Team(BaseModel):
 
     @property
     def last_result(self):
-        return self.result_author_team.filter(
+        return getattr(self, 'last_result_', None) or self.result_author_team.filter(
             result_author__isnull=False
         ).latest('result_author__x_created').result_author.latest('x_created')
 
@@ -78,14 +77,6 @@ class TestCase(BaseModel):
             self.name
         )
 
-    @property
-    def average_price(self):
-        return self.result_test_case.aggregate(avg=Avg(F('operand_price') + F('instruction_price'))).get('avg')
-
-    @property
-    def cases_in_section(self):
-        return TestCase.objects.filter(section=self.section).order_by('name')
-
     class Meta(object):
         unique_together = ('section', 'name'),
         ordering = ('section', 'name',)
@@ -105,7 +96,7 @@ class Result(BaseModel):
         return self.operand_price + self.instruction_price
 
     def __str__(self):
-        return '{} - {} - {}'.format(self.test_case, self.author, self.price)
+        return '{} - {} - {} - {}'.format(self.x_created, self.test_case, self.author, self.price)
 
 
 class VBenchmarkResultPriceProgress(models.Model):

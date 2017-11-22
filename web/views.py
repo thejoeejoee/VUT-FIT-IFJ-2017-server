@@ -1,23 +1,28 @@
 # coding=utf-8
-from collections import OrderedDict
 from operator import attrgetter
 
+from django.contrib.postgres.aggregates.general import ArrayAgg
 from django.db.models import Avg, F
-from django.db.models.aggregates import Count
+from django.db.models.aggregates import Count, Max
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 
 from benchmark.models import TestCase, Team, Result
+from web.utils import DefaultOrderedDict
 
 
 class HomepageView(TemplateView):
     template_name = "web/index.html"
 
     def get_context_data(self, **kwargs):
-        sections = OrderedDict()
-        for test_case in TestCase.objects.order_by('section'):
-            if test_case.section not in sections:
-                sections[test_case.section] = test_case
+        sections = DefaultOrderedDict(list)
+        for test_case in TestCase.objects.order_by('section').prefetch_related(
+                'result_test_case',
+        ).annotate(
+            average_price=Avg(F('result_test_case__operand_price') + F('result_test_case__instruction_price')),
+            results_count=Count('result_test_case__id'),
+        ):
+            sections[test_case.section].append(test_case)
 
         return dict(
             sections=sections.items(),
@@ -28,10 +33,10 @@ class HomepageView(TemplateView):
             ).annotate(
                 team_count=Count('result_test_case__author__team', distinct=True)
             ).order_by('-result_test_case__author__team')[:8],
-            teams=sorted(Team.objects.filter(
+
+            teams=Team.objects.prefetch_related('result_author_team__result_author').filter(
                 result_author_team__result_author__isnull=False
-            ).distinct(), reverse=True, key=attrgetter('last_result.x_created')),
-            last_result=Result.objects.latest('x_created')
+            ).distinct(), reverse=True, key=attrgetter('last_result.x_created'),
         )
 
 
