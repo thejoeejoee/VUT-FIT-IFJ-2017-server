@@ -2,6 +2,7 @@
 
 from django.core.cache import cache
 from django.db.models.aggregates import Count
+from django.db.models.functions.base import Length
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 
@@ -16,7 +17,7 @@ class HomepageView(TemplateView):
         sections = cache.get('sections')
         if not sections:
             sections = DefaultOrderedDict(list)
-            for test_case in TestCase.objects.order_by('section'):
+            for test_case in TestCase.objects.annotate(name_len=Length('name')).order_by('section', 'name_len', 'name'):
                 sections[test_case.section].append(test_case)
             cache.set('sections', [(k, tuple(v)) for k, v in sections.items()])
             sections = sections.items()

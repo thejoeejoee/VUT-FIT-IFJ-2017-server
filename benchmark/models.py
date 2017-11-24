@@ -4,7 +4,6 @@ from uuid import uuid4
 
 from django.contrib.postgres.fields.array import ArrayField
 from django.db import models
-from django.db.models import Avg, F
 from django.utils import timezone
 from django.utils.text import slugify
 
@@ -72,6 +71,10 @@ class TestCase(BaseModel):
 
     @property
     def github_link(self):
+        if len(self.name) == 3: # by JSON
+            return 'https://github.com/thejoeejoee/VUT-FIT-IFJ-2017-tests/blob/master/ifj2017/tests/{}/tests.json'.format(
+                self.section
+            )
         return 'https://github.com/thejoeejoee/VUT-FIT-IFJ-2017-tests/blob/master/ifj2017/tests/{}/{}.code'.format(
             self.section,
             self.name

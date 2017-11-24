@@ -16,8 +16,8 @@
                 };
                 chart.draw = function drawChart() {
                     var options = {
-                        height: 480,
-                        width: $('.main-content').width(),
+                        height: 640,
+                        width: window.contentWidth(),
                         interpolateNulls: true,
                         curveType: 'function',
                         title: linkify('{{ case }}', '{{ case.info }}'),
@@ -28,8 +28,22 @@
                         focusTarget: 'category',
                         vAxis: {
                             format: {format: 'none'},
-                            direction: -1
-                        }
+                            direction: -1,
+                            viewWindow: {
+                                min: 0
+                            },
+                            viewWindowMode: 'pretty'
+                        },
+                          // Allow multiple
+                          // simultaneous selections.
+                          selectionMode: 'multiple',
+                          // Trigger tooltips
+                          // on selections.
+                          tooltip: {trigger: 'focus'},
+                          // Group selections
+                          // by x-value.
+                          aggregationTarget: 'category'
+
                     };
                     chart.chart = new google.visualization.LineChart(document.getElementById(char_key));
                     chart.chart.draw(chart.data, options);
