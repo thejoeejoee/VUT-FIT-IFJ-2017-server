@@ -2,6 +2,7 @@
 
 from django.core.cache import cache
 from django.db.models.aggregates import Count
+from django.db.models.expressions import OrderBy, F
 from django.db.models.functions.base import Length
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
@@ -31,7 +32,9 @@ class HomepageView(TemplateView):
                 team_count=Count('result_test_case__author__team', distinct=True)
             ).order_by('-team_count')[:8],
 
-            teams=Team.objects.distinct().order_by('x_created'),
+            teams=Team.objects.distinct().select_related('v_team_last_result_team').order_by(
+                OrderBy(F('v_team_last_result_team__last_result'), descending=True, nulls_last=True)
+            ),
             last_result=Result.objects.latest('x_created'),
         )
 

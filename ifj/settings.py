@@ -4,7 +4,7 @@ from .settings_default import *
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ifj_test',
+        'NAME': 'ifj',
         'USER': 'ifj',
         'PASSWORD': 'DvyCPfL7829pPOrXrK',
         'HOST': 'localhost',

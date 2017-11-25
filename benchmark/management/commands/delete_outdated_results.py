@@ -1,12 +1,8 @@
 # coding=utf-8
 import logging
-from datetime import timedelta
-from operator import attrgetter
 
 from django.core.management import BaseCommand
-from django.db import transaction
 from django.db.models import F
-from django.utils.timezone import now
 
 from benchmark.models import Result
 
@@ -34,7 +30,7 @@ class Command(BaseCommand):
 
     def remove(self):
         for result in Result.objects.filter(
-                x_created__lte=now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(hours=2)
+                # x_created__lte=now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(hours=2)
         ).select_related(
             'author__team'
         ).annotate(

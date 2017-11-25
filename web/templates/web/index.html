@@ -125,6 +125,13 @@
             Nejzajímavější porovnání
             <small class="display-6 small text-muted">{{ last_result.x_created|naturaltime }}</small>
         </h3>
+        <div class="row justify-content-around">
+            <p class="font-italic col-10">
+                Grafová srovnání zobrazjí jednotlivé týmy a ceny interpretací jejich konkrétních programů v čase. Pro
+                každý
+                den je v grafu zobrazen nejlepší výsledek (nejmenší cena) za interpretaci, vždy za tým společně.
+            </p>
+        </div>
 
         <div id="carousel-charts" class="carousel slide" data-ride="carousel">
             <ol class="carousel-indicators">
@@ -187,10 +194,30 @@
             <div class="col-lg-6">
                 <h5>Evidované týmy</h5>
                 <ul class="list-group">
+                    <li class="list-group-item list-group-item-secondary">
+                        <div class="row justify-content-between">
+                            <div class="col">
+                                vedoucí
+                                <i class="small">poslední výsledek</i>
+                            </div>
+                            <div class="col text-right small">
+                                <i>počet výsledků</i>
+                            </div>
+                        </div>
+                        <i class="small">autoři výsledků</i>
+                    </li>
                     {% for team in teams %}
                         <li class="list-group-item">
-                            {{ team }}<br>
-                            <i class="small">{{ team.authors }}</i>
+                            <div class="row justify-content-between">
+                                <div class="col">
+                                    {{ team }}
+                                    <i class="small">{{ team.v_team_last_result_team.last_result|timesince }}</i>
+                                </div>
+                                <div class="col text-right small">
+                                    <i>{{ team.v_team_last_result_team.result_count }}</i>
+                                </div>
+                            </div>
+                            <i class="small">{{ team.authors }} </i>
                         </li>
                     {% endfor %}
                 </ul>

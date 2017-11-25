@@ -71,7 +71,7 @@ class TestCase(BaseModel):
 
     @property
     def github_link(self):
-        if len(self.name) == 3: # by JSON
+        if len(self.name) == 3:  # by JSON
             return 'https://github.com/thejoeejoee/VUT-FIT-IFJ-2017-tests/blob/master/ifj2017/tests/{}/tests.json'.format(
                 self.section
             )
@@ -109,8 +109,21 @@ class VBenchmarkResultPriceProgress(models.Model):
     prices = ArrayField(models.IntegerField())
 
     def __str__(self):
-        return '{} - {} - {}'.format(self.test_case, self.day, self.logins), self.prices
+        return '{} - {} - {}'.format(self.test_case, self.day, self.team_leader_logins), self.prices
 
     class Meta(object):
         managed = False
         db_table = 'v_benchmark_result_price_progress'
+
+
+class VTeamLastResult(models.Model):
+    team = models.OneToOneField(Team, related_name='v_team_last_result_team')
+    last_result = models.DateTimeField()
+    result_count = models.IntegerField()
+
+    def __str__(self):
+        return '{} - {}'.format(self.team, self.last_result)
+
+    class Meta(object):
+        managed = False
+        db_table = 'v_team_last_result'
