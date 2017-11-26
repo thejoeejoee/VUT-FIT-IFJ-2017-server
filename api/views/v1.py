@@ -6,6 +6,7 @@ from django.core.cache import cache
 from django.db.models import F
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.utils.timezone import now
 from django.views import View
 from ipware.ip import get_ip
 
@@ -26,6 +27,14 @@ class BaseApiView(View):
             success=True,
             **data
         ))
+
+
+class ServiceOnlineView(BaseApiView):
+    def get(self, request, *args, **kwargs):
+        return self._valid(
+            # msg='Service is online!',
+            now=now()
+        )
 
 
 class GenerateAuthorTokenView(BaseApiView):
