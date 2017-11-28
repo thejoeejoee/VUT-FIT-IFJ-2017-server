@@ -10,6 +10,7 @@ from django.utils.timezone import now
 from django.views import View
 from ipware.ip import get_ip
 
+from api.utils import async_call
 from benchmark.models import ResultAuthor, Team, TestCase, Result
 
 
@@ -79,7 +80,7 @@ class BenchmarkResultView(BaseApiView):
         except (TypeError, ValueError, ResultAuthor.DoesNotExist) as e:
             return self._invalid('Unable to resolve author ({}).'.format(e))
 
-        self._process_results(author, data.get('reports', ()))
+        async_call(self._process_results, author, data.get('reports', ()))
         return self._valid()
 
     @staticmethod
@@ -96,6 +97,15 @@ class BenchmarkResultView(BaseApiView):
             ).filter(price__lt=report.get('operand_price') + report.get('instruction_price')).exists():
                 cache.delete(case.cache_key)
 
+            if Result.objects.annotate(
+                    price_total=F('operand_price') + F('instruction_price')
+            ).filter(
+                author=author,
+                test_case=case,
+                price_total__lte=report.get('operand_price') + report.get('instruction_price'),
+                x_created__date=now().date()
+            ).exists():
+                continue
             Result.objects.create(
                 author=author,
                 test_case=case,

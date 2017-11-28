@@ -2,7 +2,8 @@
 import logging
 
 from django.core.management import BaseCommand
-from django.db.models import F
+from django.db.models import F, DateField
+from django.db.models.functions import Cast
 
 from benchmark.models import Result
 
@@ -35,8 +36,9 @@ class Command(BaseCommand):
             'author__team'
         ).annotate(
             price_=F('operand_price') + F('instruction_price'),
-            leader_login=F('author__team__leader_login')
-        ).order_by('-x_created').exclude(id__in=self.kept).iterator():
+            leader_login=F('author__team__leader_login'),
+            date=Cast('x_created', DateField())
+        ).order_by('-date', '-price_').exclude(id__in=self.kept).iterator():
 
             deleted = Result.objects.annotate(
                 price_value=F('operand_price') + F('instruction_price')

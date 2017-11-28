@@ -40,7 +40,7 @@ class Team(BaseModel):
 
 
 class ResultAuthor(BaseModel):
-    team = models.ForeignKey(Team, related_name='result_author_team')
+    team = models.ForeignKey(Team, related_name='result_author_team', on_delete=models.CASCADE)
     token = models.UUIDField(default=uuid4)
 
     ip = models.GenericIPAddressField()
@@ -88,8 +88,8 @@ class TestCase(BaseModel):
 class Result(BaseModel):
     objects = TestResultManager()
 
-    author = models.ForeignKey(ResultAuthor, related_name='result_author')
-    test_case = models.ForeignKey(TestCase, related_name='result_test_case')
+    author = models.ForeignKey(ResultAuthor, related_name='result_author', on_delete=models.CASCADE)
+    test_case = models.ForeignKey(TestCase, related_name='result_test_case', on_delete=models.CASCADE)
 
     instruction_price = models.PositiveIntegerField()
     operand_price = models.PositiveIntegerField()
@@ -103,7 +103,8 @@ class Result(BaseModel):
 
 
 class VBenchmarkResultPriceProgress(models.Model):
-    test_case = models.ForeignKey(TestCase, related_name='v_benchmark_result_price_progress_test_case')
+    test_case = models.ForeignKey(TestCase, related_name='v_benchmark_result_price_progress_test_case',
+                                  on_delete=models.DO_NOTHING)
     day = models.DateField()
     team_leader_logins = ArrayField(models.CharField(max_length=128))
     prices = ArrayField(models.IntegerField())
@@ -117,7 +118,7 @@ class VBenchmarkResultPriceProgress(models.Model):
 
 
 class VTeamLastResult(models.Model):
-    team = models.OneToOneField(Team, related_name='v_team_last_result_team')
+    team = models.OneToOneField(Team, related_name='v_team_last_result_team', on_delete=models.DO_NOTHING)
     last_result = models.DateTimeField()
     result_count = models.IntegerField()
 
