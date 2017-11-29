@@ -1,7 +1,10 @@
 # coding=utf-8
+import os
 import re
 from json import loads
+from tempfile import mkdtemp
 
+import git
 import requests
 from django.core.cache import cache
 from django.db.models import F
@@ -18,10 +21,11 @@ from benchmark.models import ResultAuthor, Team, TestCase, Result
 
 class BaseApiView(View):
     @staticmethod
-    def _invalid(message):
+    def _invalid(message, **extra):
         return JsonResponse(dict(
             success=False,
             message=message,
+            **extra
         ))
 
     @staticmethod
@@ -152,3 +156,64 @@ class ChartResultDataView(View):
             cached,
             json_dumps_params=dict(indent=4)
         )
+
+
+class GithubPullRequestAutoVersionView(BaseApiView):
+    ALLOWED_USERS = ('thejoeejoee',)
+    ACTIONS = ('opened',)
+
+    TITLE_VERSION_RE = re.compile(r'\[([\d.]+)\]', re.IGNORECASE)
+    FILE_VERSION = re.compile(r'[\'"](\d[\d.]*\d)[\'"]')
+
+    def post(self, request, *args, **kwargs):
+        try:
+            data = loads(request.body.decode())
+        except ValueError as e:
+            return self._invalid(str(e))
+
+        if data.get('sender', {}).get('login') not in self.ALLOWED_USERS:
+            return self._invalid(str(data.get('sender', {}).get('login')))
+
+        repository_data = data.get('repository', {})
+        pull_request_data = data.get('pull_request', {})
+        repo_url = repository_data.get('ssh_url')
+        repo_dir = mkdtemp()
+
+        if not repo_url:
+            return self._invalid('Unknown URL to clone.')
+        if not pull_request_data:
+            return self._invalid('Not PR.')
+        new_version = self.TITLE_VERSION_RE.search(pull_request_data.get('title') or '')
+        if not new_version:
+            return self._invalid('Cannot resolve new version.', pull_request_data=pull_request_data)
+        new_version = new_version.group(1)
+
+        git.Git(repo_dir).clone(repo_url)
+
+        from git import Repo
+        repo_dir = os.path.join(repo_dir, repository_data.get('name'))
+        repository = Repo(repo_dir)
+        repository.git.checkout(pull_request_data.get('head', {}).get('ref'))
+
+        version_file = os.path.join(repo_dir, 'ifj2017/__init__.py')
+
+        with open(version_file, 'rU') as f:
+            content = f.read()
+        old_version = self.FILE_VERSION.search(content)
+        if not old_version:
+            return self._invalid('Old version not found.')
+        old_version = old_version.group(1)
+        content = content.replace(old_version, new_version)
+
+        if data.get('action') == 'opened':
+            with open(version_file, '+U') as f:
+                f.write(content)
+
+            repository.git.add(version_file)
+            repository.git.commit(m="Version auto update to {} [BOT]".format(new_version))
+        else:
+            repository.git.tag('-a', '-f', 'v{}'.format(new_version))
+
+        repository.git.push(tags=True)
+
+        return JsonResponse(data=dict(success=True, data=data, content=content))

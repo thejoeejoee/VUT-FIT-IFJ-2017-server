@@ -38,7 +38,7 @@ class Command(BaseCommand):
             price_=F('operand_price') + F('instruction_price'),
             leader_login=F('author__team__leader_login'),
             date=Cast('x_created', DateField())
-        ).order_by('-date', '-price_').exclude(id__in=self.kept).iterator():
+        ).order_by('-date', 'price_').exclude(id__in=self.kept).iterator():
 
             deleted = Result.objects.annotate(
                 price_value=F('operand_price') + F('instruction_price')

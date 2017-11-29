@@ -6,3 +6,4 @@ django-ipware
 django-extensions
 psycopg2
 requests
+GitPython
