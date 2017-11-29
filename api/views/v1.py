@@ -44,7 +44,7 @@ class ServiceOnlineView(BaseApiView):
             version = response.json().get('info', {}).get('version') or 'unknown'
         except (HTTPError, ValueError, KeyError):
             pass
-        cache.set('package_version', version or 'unknown', 60 * 60)  # one hour
+        cache.set('package_version', version or 'unknown', 20 * 60)  # 20 minutes
         return version or 'unknown'
 
     def get(self, request, *args, **kwargs):
