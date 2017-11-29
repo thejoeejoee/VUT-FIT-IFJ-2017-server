@@ -2,6 +2,7 @@
 import re
 from json import loads
 
+import requests
 from django.core.cache import cache
 from django.db.models import F
 from django.http.response import JsonResponse
@@ -9,6 +10,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from django.views import View
 from ipware.ip import get_ip
+from requests import HTTPError
 
 from api.utils import async_call
 from benchmark.models import ResultAuthor, Team, TestCase, Result
@@ -31,10 +33,25 @@ class BaseApiView(View):
 
 
 class ServiceOnlineView(BaseApiView):
+    @property
+    def version(self):
+        version = cache.get('package_version')
+        if version and False:
+            return version
+
+        try:
+            response = requests.get('https://pypi.python.org/pypi/IFJcode17-toolkit/json')
+            version = response.json().get('info', {}).get('version') or 'unknown'
+        except (HTTPError, ValueError, KeyError):
+            pass
+        cache.set('package_version', version or 'unknown', 60 * 60)  # one hour
+        return version or 'unknown'
+
     def get(self, request, *args, **kwargs):
         return self._valid(
             # msg='Service is online!',
-            now=now()
+            now=now(),
+            version=self.version
         )
 
 
