@@ -30,7 +30,7 @@ class HomepageView(TemplateView):
                 result_test_case__isnull=False
             ).annotate(
                 team_count=Count('result_test_case__author__team', distinct=True)
-            ).order_by('-team_count')[:8],
+            ).order_by('-team_count')[:5],
 
             teams=Team.objects.distinct().select_related('v_team_last_result_team').order_by(
                 OrderBy(F('v_team_last_result_team__last_result'), descending=True, nulls_last=True)

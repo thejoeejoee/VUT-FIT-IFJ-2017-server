@@ -211,9 +211,9 @@ class GithubPullRequestAutoVersionView(BaseApiView):
 
             repository.git.add(version_file)
             repository.git.commit(m="Version auto update to {} [BOT]".format(new_version))
+            repository.git.push()
         else:
-            repository.git.tag('-a', '-f', 'v{}'.format(new_version))
-
-        repository.git.push(tags=True)
+            repository.git.tag('-a', '-m', '"Release v{}"'.format(new_version), '-f', 'v{}'.format(new_version))
+            repository.git.push(tags=True)
 
         return JsonResponse(data=dict(success=True, data=data, content=content))
