@@ -18,7 +18,9 @@ class HomepageView(TemplateView):
         sections = cache.get('sections')
         if not sections:
             sections = DefaultOrderedDict(list)
-            for test_case in TestCase.objects.annotate(name_len=Length('name')).order_by('section', 'name_len', 'name'):
+            for test_case in TestCase.objects.exclude(
+                    section='66_errors'
+            ).annotate(name_len=Length('name')).order_by('section', 'name_len', 'name'):
                 sections[test_case.section].append(test_case)
             cache.set('sections', [(k, tuple(v)) for k, v in sections.items()])
             sections = sections.items()
